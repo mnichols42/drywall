@@ -12,7 +12,8 @@ var config = require('./config'),
     passport = require('passport'),
     mongoose = require('mongoose'),
     helmet = require('helmet'),
-    csrf = require('csurf');
+    csrf = require('csurf'),
+    aws = require('aws-sdk');
 
 //create express app
 var app = express();
@@ -23,15 +24,24 @@ app.config = config;
 //setup the web server
 app.server = http.createServer(app);
 
-//setup mongoose
-app.db = mongoose.createConnection(config.mongodb.uri);
-app.db.on('error', console.error.bind(console, 'mongoose connection error: '));
-app.db.once('open', function () {
-  //and... we have a data store
-});
 
 //config data models
-require('./models')(app, mongoose);
+//require('./models')(app, mongoose);
+//app.db = mongoose.createConnection(config.mongodb.uri);
+//app.db.on('error', console.error.bind(console, 'mongoose connection error: '));
+//app.db.once('open', function () {
+//  //and... we have a data store
+//});
+
+//setup aws connection for DynamoDB and S3
+var credentials = new aws.SharedIniFileCredentials({profile: 'default'});
+aws.config.credentials = credentials;
+
+app.dynamodb = new aws.DynamoDB();
+app.s3 = new aws.S3();
+
+//config data models
+//require('./models')(app, mongoose);
 
 //settings
 app.disable('x-powered-by');
