@@ -7,6 +7,75 @@ exports = module.exports = function(app, passport) {
       FacebookStrategy = require('passport-facebook').Strategy,
       GoogleStrategy = require('passport-google-oauth').OAuth2Strategy,
       TumblrStrategy = require('passport-tumblr').Strategy;
+  
+  var simpleUser = {
+      username: "bob",
+      password: "secret",
+      email: "test@test.com",
+      roles: {
+        admin: {
+          user: {
+            id: "bob",
+            name: "bob"
+          },
+          name: {
+            full: "a",
+            first: "b",
+            middle: "c",
+            last: "d",
+          },
+          groups: ["Admin"],
+          permissions: [{
+            name: "admin",
+            permit: true
+          }],
+          timeCreated: Date.now,
+          search: []
+        },
+        account: {
+          user: {
+            id: "bob",
+            name: "bob"
+          },
+          isVerified: '',
+          verificationToken: '',
+          name: {
+            full: "a",
+            first: "b",
+            middle: "c",
+            last: "d",
+          },
+          company: '',
+          phone: '',
+          zip: '',
+          status: {
+            id: '1',
+            name: '',
+            userCreated: {
+              id: "bob",
+              name: "bob",
+              time: Date.now
+            }
+          },
+          statusLog: [],
+          notes: [],
+          search: []
+        }
+      },
+      isActive: "true",
+      timeCreated: Date.now,
+      resetPasswordToken: "12345",
+      resetPasswordExpires: new Date("2016", "4", "20"),
+      twitter: {},
+      github: {},
+      facebook: {},
+      google: {},
+      tumblr: {},
+      search: []
+    };
+  simpleUser.defaultReturnUrl = function() {
+    return "/account/";
+  };
 
   passport.use(new LocalStrategy(
     function(username, password, done) {
@@ -17,28 +86,30 @@ exports = module.exports = function(app, passport) {
       else {
         conditions.email = username.toLowerCase();
       }
+      
+      return done(null, simpleUser);
 
-      app.db.models.User.findOne(conditions, function(err, user) {
-        if (err) {
-          return done(err);
-        }
-
-        if (!user) {
-          return done(null, false, { message: 'Unknown user' });
-        }
-
-        app.db.models.User.validatePassword(password, user.password, function(err, isValid) {
-          if (err) {
-            return done(err);
-          }
-
-          if (!isValid) {
-            return done(null, false, { message: 'Invalid password' });
-          }
-
-          return done(null, user);
-        });
-      });
+//      app.db.models.User.findOne(conditions, function(err, user) {
+//        if (err) {
+//          return done(err);
+//        }
+//
+//        if (!user) {
+//          return done(null, false, { message: 'Unknown user' });
+//        }
+//
+//        app.db.models.User.validatePassword(password, user.password, function(err, isValid) {
+//          if (err) {
+//            return done(err);
+//          }
+//
+//          if (!isValid) {
+//            return done(null, false, { message: 'Invalid password' });
+//          }
+//
+//          return done(null, user);
+//        });
+//      });
     }
   ));
 
@@ -119,19 +190,20 @@ exports = module.exports = function(app, passport) {
   }
 
   passport.serializeUser(function(user, done) {
-    done(null, user._id);
+    done(null, simpleUser.username);
   });
 
   passport.deserializeUser(function(id, done) {
-    app.db.models.User.findOne({ _id: id }).populate('roles.admin').populate('roles.account').exec(function(err, user) {
-      if (user && user.roles && user.roles.admin) {
-        user.roles.admin.populate("groups", function(err, admin) {
-          done(err, user);
-        });
-      }
-      else {
-        done(err, user);
-      }
-    });
+    done(null, simpleUser);
+//    app.db.models.User.findOne({ _id: id }).populate('roles.admin').populate('roles.account').exec(function(err, user) {
+//      if (user && user.roles && user.roles.admin) {
+//        user.roles.admin.populate("groups", function(err, admin) {
+//          done(err, user);
+//        });
+//      }
+//      else {
+//        done(err, user);
+//      }
+//    });
   });
 };

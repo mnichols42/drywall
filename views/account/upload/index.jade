@@ -1,0 +1,20 @@
+extends ../../../layouts/account
+
+block head
+  title Account Area
+
+block neck
+  link(rel='stylesheet', href='/views/account/upload/index.min.css?#{cacheBreaker}')
+
+block feet
+  script(src='/views/account/upload/index.min.js?#{cacheBreaker}')
+
+block body
+  div.row
+    div.col-sm-12
+      div.page-header
+        h1 Upload Sheet Music
+      div.row
+        form(id='uploadForm')
+          input(id='selectedFile', type='file')
+          input(type='submit')

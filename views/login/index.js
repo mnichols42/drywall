@@ -46,25 +46,27 @@ exports.login = function(req, res){
 
   workflow.on('abuseFilter', function() {
     var getIpCount = function(done) {
-      var conditions = { ip: req.ip };
-      req.app.db.models.LoginAttempt.count(conditions, function(err, count) {
-        if (err) {
-          return done(err);
-        }
-
-        done(null, count);
-      });
+      done(null, 0);
+//      var conditions = { ip: req.ip };
+//      req.app.db.models.LoginAttempt.count(conditions, function(err, count) {
+//        if (err) {
+//          return done(err);
+//        }
+//
+//        done(null, count);
+//      });
     };
 
     var getIpUserCount = function(done) {
-      var conditions = { ip: req.ip, user: req.body.username };
-      req.app.db.models.LoginAttempt.count(conditions, function(err, count) {
-        if (err) {
-          return done(err);
-        }
-
-        done(null, count);
-      });
+      done(null, 0);
+//      var conditions = { ip: req.ip, user: req.body.username };
+//      req.app.db.models.LoginAttempt.count(conditions, function(err, count) {
+//        if (err) {
+//          return done(err);
+//        }
+//
+//        done(null, count);
+//      });
     };
 
     var asyncFinally = function(err, results) {
@@ -90,18 +92,18 @@ exports.login = function(req, res){
         return workflow.emit('exception', err);
       }
 
-      if (!user) {
-        var fieldsToSet = { ip: req.ip, user: req.body.username };
-        req.app.db.models.LoginAttempt.create(fieldsToSet, function(err, doc) {
-          if (err) {
-            return workflow.emit('exception', err);
-          }
-
-          workflow.outcome.errors.push('Username and password combination not found or your account is inactive.');
-          return workflow.emit('response');
-        });
-      }
-      else {
+//      if (!user) {
+//        var fieldsToSet = { ip: req.ip, user: req.body.username };
+//        req.app.db.models.LoginAttempt.create(fieldsToSet, function(err, doc) {
+//          if (err) {
+//            return workflow.emit('exception', err);
+//          }
+//
+//          workflow.outcome.errors.push('Username and password combination not found or your account is inactive.');
+//          return workflow.emit('response');
+//        });
+//      }
+//      else {
         req.login(user, function(err) {
           if (err) {
             return workflow.emit('exception', err);
@@ -109,7 +111,7 @@ exports.login = function(req, res){
 
           workflow.emit('response');
         });
-      }
+      //}
     })(req, res);
   });
 

@@ -17,15 +17,15 @@ function ensureAdmin(req, res, next) {
 }
 
 function ensureAccount(req, res, next) {
-  if (req.user.canPlayRoleOf('account')) {
-    if (req.app.config.requireAccountVerification) {
-      if (req.user.roles.account.isVerified !== 'yes' && !/^\/account\/verification\//.test(req.url)) {
-        return res.redirect('/account/verification/');
-      }
-    }
+//  if (req.user.canPlayRoleOf('account')) {
+//    if (req.app.config.requireAccountVerification) {
+//      if (req.user.roles.account.isVerified !== 'yes' && !/^\/account\/verification\//.test(req.url)) {
+//        return res.redirect('/account/verification/');
+//      }
+//    }
     return next();
-  }
-  res.redirect('/');
+//  }
+//  res.redirect('/');
 }
 
 exports = module.exports = function(app, passport) {
@@ -147,6 +147,8 @@ exports = module.exports = function(app, passport) {
   app.get('/account/verification/', require('./views/account/verification/index').init);
   app.post('/account/verification/', require('./views/account/verification/index').resendVerification);
   app.get('/account/verification/:token/', require('./views/account/verification/index').verify);
+  
+  app.get('/account/upload/', require('./views/account/upload/index').init);
 
   //account > settings
   app.get('/account/settings/', require('./views/account/settings/index').init);
