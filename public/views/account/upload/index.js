@@ -1,3 +1,5 @@
+/* global app:true */
+
 (function() {
   'use strict';
 
@@ -16,4 +18,4 @@
     var uploadFile = $fileInput.files[0];
     reader.readAsBinaryString(uploadFile);
   });
-});
+}());

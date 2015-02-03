@@ -1,19 +1,20 @@
 'use strict';
 
 var getReturnUrl = function(req) {
-  var returnUrl = req.user.defaultReturnUrl();
-  if (req.session.returnUrl) {
-    returnUrl = req.session.returnUrl;
-    delete req.session.returnUrl;
-  }
-  return returnUrl;
+//  var returnUrl = req.user.defaultReturnUrl();
+//  if (req.session.returnUrl) {
+//    returnUrl = req.session.returnUrl;
+//    delete req.session.returnUrl;
+//  }
+//  return returnUrl;
+  return "/account/";
 };
 
 exports.init = function(req, res){
-  if (req.isAuthenticated()) {
-    res.redirect(getReturnUrl(req));
-  }
-  else {
+//  if (req.isAuthenticated()) {
+//    res.redirect(getReturnUrl(req));
+//  }
+//  else {
     res.render('login/index', {
       oauthMessage: '',
       oauthTwitter: !!req.app.config.oauth.twitter.key,
@@ -22,7 +23,7 @@ exports.init = function(req, res){
       oauthGoogle: !!req.app.config.oauth.google.key,
       oauthTumblr: !!req.app.config.oauth.tumblr.key
     });
-  }
+//  }
 };
 
 exports.login = function(req, res){

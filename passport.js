@@ -8,75 +8,6 @@ exports = module.exports = function(app, passport) {
       GoogleStrategy = require('passport-google-oauth').OAuth2Strategy,
       TumblrStrategy = require('passport-tumblr').Strategy;
   
-  var simpleUser = {
-      username: "bob",
-      password: "secret",
-      email: "test@test.com",
-      roles: {
-        admin: {
-          user: {
-            id: "bob",
-            name: "bob"
-          },
-          name: {
-            full: "a",
-            first: "b",
-            middle: "c",
-            last: "d",
-          },
-          groups: ["Admin"],
-          permissions: [{
-            name: "admin",
-            permit: true
-          }],
-          timeCreated: Date.now,
-          search: []
-        },
-        account: {
-          user: {
-            id: "bob",
-            name: "bob"
-          },
-          isVerified: '',
-          verificationToken: '',
-          name: {
-            full: "a",
-            first: "b",
-            middle: "c",
-            last: "d",
-          },
-          company: '',
-          phone: '',
-          zip: '',
-          status: {
-            id: '1',
-            name: '',
-            userCreated: {
-              id: "bob",
-              name: "bob",
-              time: Date.now
-            }
-          },
-          statusLog: [],
-          notes: [],
-          search: []
-        }
-      },
-      isActive: "true",
-      timeCreated: Date.now,
-      resetPasswordToken: "12345",
-      resetPasswordExpires: new Date("2016", "4", "20"),
-      twitter: {},
-      github: {},
-      facebook: {},
-      google: {},
-      tumblr: {},
-      search: []
-    };
-  simpleUser.defaultReturnUrl = function() {
-    return "/account/";
-  };
-
   passport.use(new LocalStrategy(
     function(username, password, done) {
       var conditions = { isActive: 'yes' };
@@ -87,29 +18,36 @@ exports = module.exports = function(app, passport) {
         conditions.email = username.toLowerCase();
       }
       
-      return done(null, simpleUser);
+      var userUtil = require('./schema/User');
+      
+//      userUtil.validate(simpleUser);
+//      simpleUser.defaultReturnUrl = userUtil.defaultReturnUrl;
+      
+//      return done(null, simpleUser);
+      
+      console.log(userUtil);
 
-//      app.db.models.User.findOne(conditions, function(err, user) {
-//        if (err) {
-//          return done(err);
-//        }
-//
-//        if (!user) {
-//          return done(null, false, { message: 'Unknown user' });
-//        }
-//
-//        app.db.models.User.validatePassword(password, user.password, function(err, isValid) {
-//          if (err) {
-//            return done(err);
-//          }
-//
-//          if (!isValid) {
-//            return done(null, false, { message: 'Invalid password' });
-//          }
-//
-//          return done(null, user);
-//        });
-//      });
+      userUtil.getOne(app.dynamodb, conditions, function(err, user) {
+        if (err) {
+          return done(err);
+        }
+
+        if (!user) {
+          return done(null, false, { message: 'Unknown user' });
+        }
+
+        userUtil.validatePassword(password, user.password, function(err, isValid) {
+          if (err) {
+            return done(err);
+          }
+
+          if (!isValid) {
+            return done(null, false, { message: 'Invalid password' });
+          }
+
+          return done(null, user);
+        });
+      });
     }
   ));
 
@@ -190,11 +128,15 @@ exports = module.exports = function(app, passport) {
   }
 
   passport.serializeUser(function(user, done) {
-    done(null, simpleUser.username);
+    console.log(user);
+    
+    
+    done(null, 1);
   });
 
   passport.deserializeUser(function(id, done) {
-    done(null, simpleUser);
+    var userUtil = require('./schema/User');
+    userUtil.getOne(app.dynamodb, null, done);
 //    app.db.models.User.findOne({ _id: id }).populate('roles.admin').populate('roles.account').exec(function(err, user) {
 //      if (user && user.roles && user.roles.admin) {
 //        user.roles.admin.populate("groups", function(err, admin) {

@@ -41,7 +41,7 @@ app.dynamodb = new aws.DynamoDB();
 app.s3 = new aws.S3();
 
 //config data models
-//require('./models')(app, mongoose);
+require('./models')(app);
 
 //settings
 app.disable('x-powered-by');
@@ -72,7 +72,7 @@ helmet(app);
 app.use(function(req, res, next) {
   res.cookie('_csrfToken', req.csrfToken());
   res.locals.user = {};
-  res.locals.user.defaultReturnUrl = req.user && req.user.defaultReturnUrl();
+  res.locals.user.defaultReturnUrl = false;//req.user && req.user.defaultReturnUrl();
   res.locals.user.username = req.user && req.user.username;
   next();
 });
