@@ -33,6 +33,8 @@ app.server = http.createServer(app);
 //  //and... we have a data store
 //});
 
+app.schema = {};
+
 //setup aws connection for DynamoDB and S3
 var credentials = new aws.SharedIniFileCredentials({profile: 'default'});
 aws.config.credentials = credentials;
@@ -60,8 +62,7 @@ app.use(cookieParser(config.cryptoKey));
 app.use(session({
   resave: true,
   saveUninitialized: true,
-  secret: config.cryptoKey,
-  store: new mongoStore({ url: config.mongodb.uri })
+  secret: config.cryptoKey
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -72,7 +73,7 @@ helmet(app);
 app.use(function(req, res, next) {
   res.cookie('_csrfToken', req.csrfToken());
   res.locals.user = {};
-  res.locals.user.defaultReturnUrl = false;//req.user && req.user.defaultReturnUrl();
+  res.locals.user.defaultReturnUrl = req.user && req.user.defaultReturnUrl();
   res.locals.user.username = req.user && req.user.username;
   next();
 });

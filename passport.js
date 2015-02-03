@@ -17,17 +17,8 @@ exports = module.exports = function(app, passport) {
       else {
         conditions.email = username.toLowerCase();
       }
-      
-      var userUtil = require('./schema/User');
-      
-//      userUtil.validate(simpleUser);
-//      simpleUser.defaultReturnUrl = userUtil.defaultReturnUrl;
-      
-//      return done(null, simpleUser);
-      
-      console.log(userUtil);
 
-      userUtil.getOne(app.dynamodb, conditions, function(err, user) {
+      app.schema.User.getOne(app.dynamodb, conditions, function(err, user) {
         if (err) {
           return done(err);
         }
@@ -35,8 +26,10 @@ exports = module.exports = function(app, passport) {
         if (!user) {
           return done(null, false, { message: 'Unknown user' });
         }
+        
+        console.log("passport.js line 39");
 
-        userUtil.validatePassword(password, user.password, function(err, isValid) {
+        app.schema.User.validatePassword(password, user.password, function(err, isValid) {
           if (err) {
             return done(err);
           }
@@ -44,6 +37,8 @@ exports = module.exports = function(app, passport) {
           if (!isValid) {
             return done(null, false, { message: 'Invalid password' });
           }
+          
+          console.log('passportjs line 45');
 
           return done(null, user);
         });
@@ -135,8 +130,9 @@ exports = module.exports = function(app, passport) {
   });
 
   passport.deserializeUser(function(id, done) {
-    var userUtil = require('./schema/User');
-    userUtil.getOne(app.dynamodb, null, done);
+    app.schema.User.getOne(app.dynamodb, {id: 1}, function(err, user) {
+      done(err, user);
+    });
 //    app.db.models.User.findOne({ _id: id }).populate('roles.admin').populate('roles.account').exec(function(err, user) {
 //      if (user && user.roles && user.roles.admin) {
 //        user.roles.admin.populate("groups", function(err, admin) {

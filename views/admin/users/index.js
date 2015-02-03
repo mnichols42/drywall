@@ -272,7 +272,7 @@ exports.password = function(req, res, next){
   });
 
   workflow.on('patchUser', function() {
-    req.app.db.models.User.encryptPassword(req.body.newPassword, function(err, hash) {
+    req.app.schema.User.encryptPassword(req.body.newPassword, function(err, hash) {
       if (err) {
         return workflow.emit('exception', err);
       }

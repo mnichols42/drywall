@@ -1,20 +1,19 @@
 'use strict';
 
 var getReturnUrl = function(req) {
-//  var returnUrl = req.user.defaultReturnUrl();
-//  if (req.session.returnUrl) {
-//    returnUrl = req.session.returnUrl;
-//    delete req.session.returnUrl;
-//  }
-//  return returnUrl;
-  return "/account/";
+  var returnUrl = req.user.defaultReturnUrl();
+  if (req.session.returnUrl) {
+    returnUrl = req.session.returnUrl;
+    delete req.session.returnUrl;
+  }
+  return returnUrl;
 };
 
 exports.init = function(req, res){
-//  if (req.isAuthenticated()) {
-//    res.redirect(getReturnUrl(req));
-//  }
-//  else {
+  if (req.isAuthenticated()) {
+    res.redirect(getReturnUrl(req));
+  }
+  else {
     res.render('login/index', {
       oauthMessage: '',
       oauthTwitter: !!req.app.config.oauth.twitter.key,
@@ -23,7 +22,7 @@ exports.init = function(req, res){
       oauthGoogle: !!req.app.config.oauth.google.key,
       oauthTumblr: !!req.app.config.oauth.tumblr.key
     });
-//  }
+  }
 };
 
 exports.login = function(req, res){
@@ -88,31 +87,34 @@ exports.login = function(req, res){
   });
 
   workflow.on('attemptLogin', function() {
+    console.log('attemptLogin');
+    
     req._passport.instance.authenticate('local', function(err, user, info) {
       if (err) {
         return workflow.emit('exception', err);
       }
 
-//      if (!user) {
+      if (!user) {
 //        var fieldsToSet = { ip: req.ip, user: req.body.username };
 //        req.app.db.models.LoginAttempt.create(fieldsToSet, function(err, doc) {
 //          if (err) {
 //            return workflow.emit('exception', err);
 //          }
-//
-//          workflow.outcome.errors.push('Username and password combination not found or your account is inactive.');
-//          return workflow.emit('response');
+
+          workflow.outcome.errors.push('Username and password combination not found or your account is inactive.');
+          return workflow.emit('response');
 //        });
-//      }
-//      else {
+      }
+      else {
         req.login(user, function(err) {
           if (err) {
             return workflow.emit('exception', err);
           }
 
+          console.log("Login successful");
           workflow.emit('response');
         });
-      //}
+      }
     })(req, res);
   });
 

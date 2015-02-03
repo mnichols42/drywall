@@ -8,7 +8,7 @@ exports = module.exports = function(app) {
 //  require('./schema/Category')(app, mongoose);
 
   //then regular docs
-//  require('./schema/User')(app);
+  require('./schema/User')(app);
 //  require('./schema/Admin')(app, mongoose);
 //  require('./schema/AdminGroup')(app, mongoose);
 //  require('./schema/Account')(app, mongoose);

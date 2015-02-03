@@ -57,7 +57,7 @@ exports.init = function(req, res, next){
       }
 
       var token = buf.toString('hex');
-      req.app.db.models.User.encryptPassword(token, function(err, hash) {
+      req.app.schema.User.encryptPassword(token, function(err, hash) {
         if (err) {
           return next(err);
         }
@@ -147,7 +147,7 @@ exports.resendVerification = function(req, res, next){
       }
 
       var token = buf.toString('hex');
-      req.app.db.models.User.encryptPassword(token, function(err, hash) {
+      req.app.schema.User.encryptPassword(token, function(err, hash) {
         if (err) {
           return next(err);
         }
