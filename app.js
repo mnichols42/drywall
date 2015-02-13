@@ -6,11 +6,9 @@ var config = require('./config'),
     cookieParser = require('cookie-parser'),
     bodyParser = require('body-parser'),
     session = require('express-session'),
-    mongoStore = require('connect-mongo')(session),
     http = require('http'),
     path = require('path'),
     passport = require('passport'),
-    mongoose = require('mongoose'),
     helmet = require('helmet'),
     csrf = require('csurf'),
     aws = require('aws-sdk');
@@ -36,8 +34,9 @@ app.server = http.createServer(app);
 app.schema = {};
 
 //setup aws connection for DynamoDB and S3
-var credentials = new aws.SharedIniFileCredentials({profile: 'default'});
+var credentials = new aws.SharedIniFileCredentials({profile: 'audiveris'});
 aws.config.credentials = credentials;
+aws.config.update({region: 'us-west-1'});
 
 app.dynamodb = new aws.DynamoDB();
 app.s3 = new aws.S3();

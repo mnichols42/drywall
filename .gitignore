@@ -4,5 +4,9 @@ node_modules/*
 *.min.js
 *.min.js.map
 *.min.css
-/config.js
 .nodemonignore
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

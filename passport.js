@@ -26,8 +26,6 @@ exports = module.exports = function(app, passport) {
         if (!user) {
           return done(null, false, { message: 'Unknown user' });
         }
-        
-        console.log("passport.js line 39");
 
         app.schema.User.validatePassword(password, user.password, function(err, isValid) {
           if (err) {
@@ -38,7 +36,8 @@ exports = module.exports = function(app, passport) {
             return done(null, false, { message: 'Invalid password' });
           }
           
-          console.log('passportjs line 45');
+          console.log(user);
+          console.log(user.defaultReturnUrl());
 
           return done(null, user);
         });
@@ -125,12 +124,11 @@ exports = module.exports = function(app, passport) {
   passport.serializeUser(function(user, done) {
     console.log(user);
     
-    
-    done(null, 1);
+    done(null, user.id);
   });
 
-  passport.deserializeUser(function(id, done) {
-    app.schema.User.getOne(app.dynamodb, {id: 1}, function(err, user) {
+  passport.deserializeUser(function(userId, done) {
+    app.schema.User.getOne(app.dynamodb, {id: userId}, function(err, user) {
       done(err, user);
     });
 //    app.db.models.User.findOne({ _id: id }).populate('roles.admin').populate('roles.account').exec(function(err, user) {

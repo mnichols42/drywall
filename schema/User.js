@@ -38,42 +38,74 @@ exports = module.exports = function(app, dynamo) {
     });
   };
   
-  app.schema.User.validatePassword = function(password, hash, done) {
+  app.schema.User.validatePassword = function(password, hashInDB, done) {
     var bcrypt = require('bcryptjs');
-    console.log(password);
-    console.log(hash);
     
-    app.schema.User.encryptPassword(hash, function(err, hashdone) {
-      bcrypt.compare(password, hashdone, function(err, res) {
-        done(err, res);
-      });
+    bcrypt.compare(password, hashInDB, function(err, res) {
+      done(err, res);
     });
   };
   
   app.schema.User.getOne = function(dynamo, conditions, callback) {
-    var user = {
-      id: 1,
-      username: "bob",
-      password: "secret",
-      email: "test@test.com"
-    };
-    
-    console.log("User.js line 61");
-    
-    user.defaultReturnUrl = function() {
-      return "/";
-    };
-    
     if (!conditions) {
-      callback(null, null);
-    } else if (conditions.id === user.id) {
-      callback(null, user);
-    } else if (conditions.username === user.username) {
-      callback(null, user);
-    } else if (conditions.email === user.email) {
-      callback(null, user);
+      return callback(null, null);
+    }
+    
+    var userIdRequest = {};
+
+    var retrievedUserId;
+    
+    if (conditions.id) {
+      getUserWithId(conditions.id, callback);
     } else {
-      callback(null, null);
+      if (conditions.username) {
+        userIdRequest = {
+          TableName: "AudiverisUsers",
+          IndexName: "username-index",
+          ProjectionExpression: "id",
+          KeyConditions: {
+            "username" : {
+              "ComparisonOperator": "EQ",
+              "AttributeValueList": [
+                {
+                  "S": conditions.username
+                }
+              ]
+            }
+          }
+        };
+      } else if (conditions.email) {
+        userIdRequest = {
+          TableName: "AudiverisUsers",
+          IndexName: "email-index",
+          ProjectionExpression: "id",
+          KeyConditions: {
+            "email" : {
+              "ComparisonOperator": "EQ",
+              "AttributeValueList": [
+                {
+                  "S": conditions.email
+                }
+              ]
+            }
+          }
+        };
+      } else {
+        return callback(null, null);
+      }
+      
+      dynamo.query(userIdRequest, function(err, data) {
+        if (err || !data || !data.Items[0]) {
+          console.log(err);
+          return callback(null, null);
+        }
+        
+        console.log(data);
+        
+        retrievedUserId = data.Items[0].id.N;
+        
+        return getUserWithId(retrievedUserId, callback);
+      });
     }
   };
   
@@ -84,6 +116,7 @@ exports = module.exports = function(app, dynamo) {
       "id": "/User",
       "type": "object",
       "properties": {
+        "id": {"type": "string"},
         "username": {"type": "string"},
         "password": {"type": "string"},
         "email": {"type": "string"},
@@ -101,6 +134,39 @@ exports = module.exports = function(app, dynamo) {
   };
   
   app.schema.User.defaultReturnUrl = function() {
-    return '/';
+    return '/account';
+  };
+  
+  var getUserWithId = function(id, callback) {
+    var userRequest = {
+        TableName: "AudiverisUsers",
+        ProjectionExpression: "id, username, email, passwordHash",
+        Key: {
+          "id":
+            {
+              "N": id
+            }
+          }
+        };
+    
+    app.dynamodb.getItem(userRequest, function(err, userData) {
+      if (err || !userData) {
+        console.log(err);
+        return callback(null, null);
+      }
+
+      var retrievedUser = {};
+      
+      retrievedUser.id = userData.Item.id.N;
+      retrievedUser.username = userData.Item.username.S;
+      retrievedUser.email = userData.Item.email.S;
+      retrievedUser.password = userData.Item.passwordHash.S;
+      
+      retrievedUser.defaultReturnUrl = function() {
+        return "/account";
+      };
+      
+      return callback(null, retrievedUser);
+    });
   };
 };

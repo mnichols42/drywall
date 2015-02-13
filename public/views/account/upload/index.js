@@ -9,7 +9,36 @@
     var reader = new FileReader();
     
     reader.onloadend = function() {
-      console.log("SHA-256 hash of file: " + CryptoJS.SHA256(reader.result));
+      //var hash = CryptoJS.SHA256(reader.result);
+      var hash = "hello-world!";
+      
+      console.log("SHA-256 hash of file: " + hash);
+      
+      $.ajax({
+        type: "POST",
+        url: "/account/upload/hash/",
+        data: {
+          hash: hash
+        },
+        success: function() {
+          $.ajax({
+            type: "POST",
+            url: "/account/upload/",
+            dataType: "json",
+            processData: false,
+//            contentType: false,
+            data: {
+              hash: hash,
+              file: reader.result
+            }
+          });
+        },
+        statusCode: {
+          409: function() {
+            return;
+          }
+        },
+      });
     };
     
     var $fileInput = $('input#selectedFile')[0];
