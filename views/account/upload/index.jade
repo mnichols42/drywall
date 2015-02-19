@@ -7,6 +7,8 @@ block neck
   link(rel='stylesheet', href='/views/account/upload/index.min.css?#{cacheBreaker}')
 
 block feet
+  script(src='http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha1.js')
+  script(src='https://sdk.amazonaws.com/js/aws-sdk-2.1.10.min.js')
   script(src='/views/account/upload/index.min.js?#{cacheBreaker}')
 
 block body
@@ -16,5 +18,5 @@ block body
         h1 Upload Sheet Music
       div.row
         form(id='uploadForm')
-          input(id='selectedFile', type='file')
+          input(id='selectedFile', name='selectedFile', type='file')
           input(type='submit')

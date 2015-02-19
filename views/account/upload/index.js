@@ -7,62 +7,13 @@ exports.init = function(req, res){
 exports.uploadHash = function(req, res) {
   var workflow = req.app.utility.workflow(req, res);
 
-//  workflow.on('uploadHash', function() {
-//    if (!req.body.email) {
-//      workflow.outcome.errfor.email = 'required';
-//    }
-//    else if (!/^[a-zA-Z0-9\-\_\.\+]+@[a-zA-Z0-9\-\_\.]+\.[a-zA-Z0-9\-\_]+$/.test(req.body.email)) {
-//      workflow.outcome.errfor.email = 'invalid email format';
-//    }
-//
-//    if (workflow.hasErrors()) {
-//      return workflow.emit('response');
-//    }
-//
-//    workflow.emit('upload');
-//  });
-//
-//  workflow.emit('uploadHash');
-  console.log(req.body);
-  
-  workflow.emit('response');
-};
+  workflow.on('uploadHash', function() {
+    req.app.schema.User.associateFileHash(req.user.id, req.body.hash, function() {
+      return;
+    });
 
-exports.uploadFile = function(req, res) {
-  var workflow = req.app.utility.workflow(req, res);
-
-//  workflow.on('uploadHash', function() {
-//    if (!req.body.email) {
-//      workflow.outcome.errfor.email = 'required';
-//    }
-//    else if (!/^[a-zA-Z0-9\-\_\.\+]+@[a-zA-Z0-9\-\_\.]+\.[a-zA-Z0-9\-\_]+$/.test(req.body.email)) {
-//      workflow.outcome.errfor.email = 'invalid email format';
-//    }
-//
-//    if (workflow.hasErrors()) {
-//      return workflow.emit('response');
-//    }
-//
-//    workflow.emit('upload');
-//  });
-//
-//  workflow.emit('uploadHash');
-  
-  console.log(req.body);
-  
-  var params = {
-    Bucket : 'audiveris-uploads-ca',
-    Key : 'test1',
-    Body : req.body.file
-  };
-  
-  req.app.s3.upload(params, function(err, data) {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log("Successful file upload!");
-    }
+    return workflow.emit('response');
   });
   
-  workflow.emit('response');
+  workflow.emit('uploadHash');
 };

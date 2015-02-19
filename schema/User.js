@@ -26,7 +26,7 @@ exports = module.exports = function(app, dynamo) {
 //    return returnUrl;
 //  };
   app.schema.User.encryptPassword = function(password, done) {
-    var bcrypt = require('bcryptjs');
+    var bcrypt = require('bcrypt-nodejs');
     bcrypt.genSalt(10, function(err, salt) {
       if (err) {
         return done(err);
@@ -39,7 +39,7 @@ exports = module.exports = function(app, dynamo) {
   };
   
   app.schema.User.validatePassword = function(password, hashInDB, done) {
-    var bcrypt = require('bcryptjs');
+    var bcrypt = require('bcrypt-nodejs');
     
     bcrypt.compare(password, hashInDB, function(err, res) {
       done(err, res);
@@ -137,17 +137,44 @@ exports = module.exports = function(app, dynamo) {
     return '/account';
   };
   
+  app.schema.User.associateFileHash = function(id, hash, callback) {
+    var putFileHashRequest = {
+      TableName: "AudiverisUsers",
+      Key: {
+        "id": {
+          "N": id
+        }
+      },
+      ExpressionAttributeValues: {
+        ":hash": {
+          "SS": [
+            hash
+          ]
+        }
+      },
+      UpdateExpression: "ADD uploads :hash"
+    };
+    
+    app.dynamodb.updateItem(putFileHashRequest, function(err, result) {
+      if (err) {
+        console.log(err);
+        return callback(err, null);
+      }
+      
+      return callback(null, result);
+    });
+  };
+  
   var getUserWithId = function(id, callback) {
     var userRequest = {
-        TableName: "AudiverisUsers",
-        ProjectionExpression: "id, username, email, passwordHash",
-        Key: {
-          "id":
-            {
-              "N": id
-            }
-          }
-        };
+      TableName: "AudiverisUsers",
+      ProjectionExpression: "id, username, email, passwordHash",
+      Key: {
+        "id": {
+            "N": id
+        }
+      }
+    };
     
     app.dynamodb.getItem(userRequest, function(err, userData) {
       if (err || !userData) {
