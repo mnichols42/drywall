@@ -165,6 +165,27 @@ exports = module.exports = function(app, dynamo) {
     });
   };
   
+  app.schema.User.getUserUploadHashes = function(id, callback) {
+    var getUserUploadsRequest = {
+      TableName: "AudiverisUsers",
+      ProjectionExpression: "uploads",
+      Key: {
+        "id": {
+            "N": id
+        }
+      }
+    };
+    
+    app.dynamodb.getItem(getUserUploadsRequest, function(err, userUploads) {
+      if (err || !userUploads) {
+        console.log(err);
+        return callback(err, null);
+      }
+      
+      return callback(null, userUploads.Item.uploads.SS);
+    });
+  };
+  
   var getUserWithId = function(id, callback) {
     var userRequest = {
       TableName: "AudiverisUsers",

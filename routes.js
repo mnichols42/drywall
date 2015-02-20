@@ -148,6 +148,10 @@ exports = module.exports = function(app, passport) {
   app.post('/account/verification/', require('./views/account/verification/index').resendVerification);
   app.get('/account/verification/:token/', require('./views/account/verification/index').verify);
   
+  app.get('/account/file/:fileId', require('./views/account/file/index').init);
+
+  app.get('/account/library/', require('./views/account/library/index').init);
+  
   app.get('/account/upload/', require('./views/account/upload/index').init);
   app.post('/account/upload/hash/', require('./views/account/upload/index').uploadHash);
 
